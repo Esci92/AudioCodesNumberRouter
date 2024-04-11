@@ -85,28 +85,28 @@ class RoutingManager:
     def __init__(self, db_name):
         self.db_name = db_name
 
-    def insert_routing(self, tag_id, phonenumber_id):
+    def insert_routing(self, tag_id, number):
         with DatabaseManager(self.db_name) as cursor:
             try:
-                cursor.execute("INSERT INTO Routing (tag_id, phonenumber_id) VALUES (?,?)", (tag_id, phonenumber_id))
-                return f"Success: {tag_id} - {phonenumber_id} added"
+                cursor.execute("UPDATE Phonenumber SET tag_id = ? WHERE number = ?", (tag_id, number))
+                return f"Success: {tag_id} - {number} added"
             except sqlite3.IntegrityError:
-                return f"Error: The {tag_id} - {phonenumber_id} number already exists in the database"
+                return f"Error: The {tag_id} - {number} number already exists in the database"
 
     def select_routing(self, number=None):
         with DatabaseManager(self.db_name) as cursor:
             if number is None:
-                cursor.execute("SELECT Routing.id, number, routingtag, name FROM Routing JOIN Phonenumber on Routing.phonenumber_id = Phonenumber.id JOIN Tag on Routing.tag_id = Tag.id;")
+                cursor.execute("SELECT Phonenumber.id, number, routingtag, name FROM Phonenumber LEFT JOIN Tag on Phonenumber.tag_id = Tag.id;")
             else:
-                cursor.execute("SELECT Routing.id, number, routingtag, name FROM Routing JOIN Phonenumber on Routing.phonenumber_id = Phonenumber.id JOIN Tag on Routing.tag_id = Tag.id WHERE number=?;", (number,))
+                cursor.execute("SELECT Phonenumber.id, number, routingtag, name FROM Phonenumber LEFT JOIN Tag on Phonenumber.tag_id = Tag.id WHERE number=?;", (number,))
             outvar = cursor.fetchall()
             return outvar
 
 
-    def delete_routing(self, routing_id):
+    def delete_routing(self, number):
         with DatabaseManager(self.db_name) as cursor:
-            cursor.execute("DELETE FROM Routing WHERE routing_id=?", (routing_id,))
-            return f"Success: {routing_id} deleted"
+            cursor.execute("UPDATE Phonenumber SET tag_id = null WHERE number = ?", (number,))
+            return f"Success: {number} deleted"
 
 class NewDB:
     def __init__(self, db_name):
@@ -128,14 +128,8 @@ class NewDB:
                 # Create Phonenumber table
                 cursor.execute("""CREATE TABLE IF NOT EXISTS Phonenumber(
                                     id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                                    number VARCHAR(25) NOT NULL UNIQUE
-                                )""")
-                
-                # Create Routing table
-                cursor.execute("""CREATE TABLE IF NOT EXISTS Routing(
-                                    id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                                    tag_id INT NOT NULL, 
-                                    phonenumber_id INT NOT NULL
+                                    number VARCHAR(25) NOT NULL UNIQUE,
+                                    tag_id INT 
                                 )""")
                 
                 # Commit transaction

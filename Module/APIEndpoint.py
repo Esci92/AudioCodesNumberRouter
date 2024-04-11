@@ -1,5 +1,6 @@
 from flask import Flask
 import Module.API as api
+from waitress import serve 
 
 app = Flask(__name__)
 
@@ -8,7 +9,7 @@ app = Flask(__name__)
 def endpoint_get_phonenumber():
     return api.get_phonenumber(db)
 
-@app.route('/api/v1/phonenumber', methods=['PUT'])
+@app.route('/api/v1/phonenumber', methods=['POST'])
 def endpoint_add_phonenumber():
     return api.add_phonenumber(db)
 
@@ -21,7 +22,7 @@ def endpoint_del_phonenumber():
 def endpoint_get_routingTag():
     return api.get_routingTag(db)
     
-@app.route('/api/v1/routingtag', methods=['PUT'])
+@app.route('/api/v1/routingtag', methods=['POST'])
 def endpoint_add_routingTag():
     return api.add_routingtag(db)
 
@@ -31,11 +32,27 @@ def endpoint_del_routingTag():
 
 # Audiocodes Endpoints
 @app.route('/api/v1/audiocodes', methods=['GET'])
-def endpoint_get_ac_routing():
-    return api.get_ac_routing(db)
+def endpoint_get_ac_routing_healht():
+    return api.get_ac_routing_healht()
+
+@app.route('/api/v1/audiocodes/<number>', methods=['GET'])
+def endpoint_get_ac_routing(number):
+    json = api.get_ac_routing(db, number)
+    return json.json[0]['RoutingTag']
+
+# Routing Endpoints
+@app.route('/api/v1/phonenumber/<number>', methods=['GET'])
+def endpoint_get_routing_phone(number):
+    return api.get_routing_phone(db, number)
+
+@app.route('/api/v1/phonenumber/<number>', methods=['PUT'])
+def endpoint_update_routing(number):
+    return api.update_routing(db, number)
 
 def start(DBdata):
     global db
     db = DBdata
     
-    app.run(debug=True, port=5000)
+    # Flask Debup
+    # app.run(port=5000)
+    serve(app, host='0.0.0.0', port=5000)
