@@ -49,10 +49,11 @@ def endpoint_get_routing_phone(number):
 def endpoint_update_routing(number):
     return api.update_routing(db, number)
 
-def start(DBdata):
+def start(DBdata, debug):
     global db
     db = DBdata
     
-    # Flask Debup
-    # app.run(port=5000)
-    serve(app, host='0.0.0.0', port=5000)
+    if debug:
+        app.run(port=5000, host="192.168.10.122")
+    else:
+        serve(app, host='0.0.0.0', port=5000)

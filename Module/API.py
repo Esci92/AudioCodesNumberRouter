@@ -14,7 +14,7 @@ def format_by_indexes(input_list, first_value, secound_value, third_value, forth
             data = {first_value: first_row_value, secound_value: secound_row_value, third_value: third_row_value, forth_value: forth_row_value}
         else:
             # Extracting values from tuple
-            first_row_value, secound_row_value, third_value = row
+            first_row_value, secound_row_value, third_row_value = row
 
             # Creating a dictionary with specified keys
             data = {first_value: first_row_value, secound_value: secound_row_value, third_value: third_row_value}
@@ -121,7 +121,6 @@ def get_ac_routing(db, number):
 
 def get_ac_routing_healht():
     return jsonify({'OK': 'Health Check'}), 200    
-
 
 def get_routing_phone(db, number):
     try:
